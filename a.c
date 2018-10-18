@@ -2,7 +2,11 @@
 #include<stdint.h>
 #include <string.h>
 #include "a.h"
- 
+
+void print_data(AT_COMMAND_DATA data){
+    printf("here comes the data %d",data.ok);
+}
+
 STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
  static uint32_t state = 0;
  static AT_COMMAND_DATA data;
@@ -75,7 +79,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
     case 11:  {
         if (current_character == 0x0A) {
             data.ok = 1;
-            printf("@cmd data ok? %d",data.ok);
+            print_data(data);
             return STATE_MACHINE_READY_OK;
         } else {
             // RESET AUTOMATON
