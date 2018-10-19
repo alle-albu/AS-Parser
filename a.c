@@ -76,11 +76,9 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
         }
         break;
     }
-    case 11:  {
+    case 5: {
         if (current_character == 0x0A) {
-            data.ok = 1;
-            print_data(data);
-            return STATE_MACHINE_READY_OK;
+            state = 11;
         } else {
             // RESET AUTOMATON
             state = 0;
@@ -89,7 +87,13 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             memset(data.data, 0, sizeof data.data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
-        } break;
+        }
+    }
+    case 11:  {
+            data.ok = 1;
+            print_data(data);
+            return STATE_MACHINE_READY_OK;
+         break;
     }
  }
  //printf(" state is %d\n",state);
