@@ -7,6 +7,13 @@ void print_data(AT_COMMAND_DATA data){
     printf("here comes the data %d",data.ok);
 }
 
+void reset_automaton(uint32_t state, AT_COMMAND_DATA data) {
+  state = 0;
+  data.ok = 0;
+  data.line_count = 0;
+  memset(data.data, 0, sizeof data.data);
+ }
+
 STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
  static uint32_t state = 0;
  static AT_COMMAND_DATA data;
@@ -25,10 +32,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 2;
         }  else  {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -43,10 +47,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
           state = 6;
             } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -57,10 +58,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 4;
         }  else  {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -71,10 +69,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 5;
         }  else  {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -85,10 +80,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 11;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -99,10 +91,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 7;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -113,10 +102,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 8;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -127,10 +113,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 9;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -141,10 +124,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 10;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
@@ -157,10 +137,7 @@ although "<CR><LF>ERROR" should lead to a separate unique state, we can reuse st
             state = 4;
         } else {
             // RESET AUTOMATON
-            state = 0;
-            data.ok = 0;
-            data.line_count = 0;
-            memset(data.data, 0, sizeof data.data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_READY_WITH_ERROR;
         }
