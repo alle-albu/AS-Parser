@@ -18,6 +18,13 @@ void resetAutomata(int state, AT_COMMAND_DATA data){
     memset(data.data, 0, sizeof data.data);
 }
 
+void reset_automaton(uint32_t state, AT_COMMAND_DATA data) {
+  state = 0;
+  data.ok = 0;
+  data.line_count = 0;
+  memset(data.data, 0, sizeof data.data);
+ }
+
 STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
  static uint32_t state = 0;
  static AT_COMMAND_DATA data;
@@ -38,7 +45,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 2;
         }  else  {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -46,6 +53,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
     }
     case 2:  {
         if (current_character == 'O') {
+          //follow OK branch
             state = 3;
         }  else if(current_character == '+') {
                     state = 15;
@@ -67,7 +75,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 4;
         }  else  {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -78,7 +86,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 5;
         }  else  {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -94,6 +102,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             return STATE_MACHINE_SYNTAX_ERROR;
         }
     }
+    
     case 11:  {
             data.ok = 1;
             print_data(data);
