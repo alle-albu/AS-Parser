@@ -17,11 +17,13 @@ typedef enum
 {
  STATE_MACHINE_NOT_READY,
  STATE_MACHINE_READY_OK,
- STATE_MACHINE_READY_WITH_ERROR
+ STATE_MACHINE_READY_WITH_ERROR,
+ STATE_MACHINE_SYNTAX_ERROR
 }STATE_MACHINE_RETURN_VALUE;
 
 STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character); 
 
 void print_data(AT_COMMAND_DATA data);
+void resetAutomata(int state, AT_COMMAND_DATA data);
 
 #endif
