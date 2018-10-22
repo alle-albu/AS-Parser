@@ -35,7 +35,7 @@ do {
   fclose(fp);
 
   if(result == 0) {
-    printf("either transmission was never started or it never ended.");
+    printf("Either transmission was never started or it never ended.");
   }
   print_final_state(result);
 

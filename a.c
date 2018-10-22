@@ -24,8 +24,6 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
 // use i to keep track of 1st character on every line
  static uint8_t i = 0;
 
-//printf("current character is %d current state is %d \n",current_character, state );
-
  switch (state) {
     case 0: {
         if (current_character == 0x0D) {
