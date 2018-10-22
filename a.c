@@ -10,15 +10,8 @@ void print_data(AT_COMMAND_DATA data){
     }
 }
 
-void resetAutomata(int state, AT_COMMAND_DATA data){
-    printf("syntax error occurred at state %d",state);
-    state = 0;
-    data.ok = 0;
-    data.line_count = 0;
-    memset(data.data, 0, sizeof data.data);
-}
-
 void reset_automaton(uint32_t state, AT_COMMAND_DATA data) {
+  printf("syntax error occurred at state %d",state);
   state = 0;
   data.ok = 0;
   data.line_count = 0;
@@ -64,7 +57,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
                     state = 6;
                 } else {
                     // RESET AUTOMATON
-                    resetAutomata(state, data);
+                    reset_automaton(state, data);
 
                     return STATE_MACHINE_SYNTAX_ERROR;
                 }
@@ -97,7 +90,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 11;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -114,7 +107,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 7;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -125,7 +118,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 8;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -136,7 +129,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 9;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -147,7 +140,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 10;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -158,7 +151,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 14;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -169,7 +162,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 13;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -183,12 +176,10 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
     case 15: {
         if(current_character >= 32 && current_character<=124){
             state = 16;
-
-            
             data.data[data.line_count][i++] = current_character;
         } else {
             //RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -203,7 +194,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
                 state = 17;
             } else {
                 // RESET AUTOMATON
-            resetAutomata(state, data);
+                reset_automaton(state, data);
 
                 return STATE_MACHINE_SYNTAX_ERROR;
             }
@@ -215,7 +206,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 18;
         } else {
             // RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -234,7 +225,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
                 data.data[data.line_count][i] = '\0';
             } else {
                 //RESET AUTOMATON
-            resetAutomata(state, data);
+                reset_automaton(state, data);
 
                 return STATE_MACHINE_SYNTAX_ERROR;
             }
@@ -246,7 +237,7 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
             state = 20;
         } else {
             //RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
@@ -259,29 +250,12 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character){
                 state = 6;
             } else {
             //RESET AUTOMATON
-            resetAutomata(state, data);
+            reset_automaton(state, data);
 
             return STATE_MACHINE_SYNTAX_ERROR;
         }
         break;
     }
  }
-//  if(state == 0)
-//  return STATE_MACHINE_SYNTAX_ERROR ;
-//  else 
  return STATE_MACHINE_NOT_READY;
 }
-
-// int main()
-// {
-//     printf("%d",at_command_parse(0x0D));
-//     printf("%d",at_command_parse(0x0A));
-
-//     printf("%d",at_command_parse('O'));
-//     printf("%d",at_command_parse('K'));
-
-//     printf("%d",at_command_parse(0x0D));
-//     printf("%d",at_command_parse(0x0A));
-
-//     return 0;
-// }
