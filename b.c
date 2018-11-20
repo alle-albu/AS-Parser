@@ -6,6 +6,8 @@
 #include "utils/timer_software.h"
 #include "drv/drv_led.h"
 #include "drv/drv_uart.h"
+#include "drv/drv_sdram.h"
+#include "drv/drv_lcd.h"
 #include "b.h"
 #include "a.h"
 
@@ -28,16 +30,17 @@ void SendCommand(const uint8_t *command)
  DRV_UART_Write(UART_3, my_command, strlen(my_command));
 } 
 
-timer_software_handler_t my_handler;
+//timer_software_handler_t my_handler;
+// replaced the above with the global one
 
 void GetCommandResponse()
 {
   // parse and extract data
   uint8_t ch;
   bool ready = false;
-  TIMER_SOFTWARE_reset_timer(my_handler);
-  TIMER_SOFTWARE_start_timer(my_handler);
-  while ((!TIMER_SOFTWARE_interrupt_pending(my_handler)) && (ready == false))
+  TIMER_SOFTWARE_reset_timer(my_timer_handler);
+  TIMER_SOFTWARE_start_timer(my_timer_handler);
+  while ((!TIMER_SOFTWARE_interrupt_pending(my_timer_handler)) && (ready == false))
   {
     while (DRV_UART_BytesAvailable(UART_3) > 0)
     {
@@ -62,11 +65,29 @@ bool CommandResponseValid(){
   // @TODO: implement this
 }
 
+void BoardInit()
+{
+	DRV_SDRAM_Init();
+	
+	initRetargetDebugSystem();
+	DRV_LCD_Init();
+	DRV_LCD_ClrScr();
+	DRV_LCD_PowerOn();	
+
+	printf ("Hello\n");		
+}
+
 int main(void)
 {
 
   uint32_t rssi_value_asu;
   uint32_t rssi_value_dbmw;
+
+// board init
+  BoardInit();
+
+// configure UART_3
+  DRV_UART_Configure(UART_3, UART_CHARACTER_LENGTH_8, 115200, UART_PARITY_NO_PARITY, 1, TRUE, 3);
 
 // init, configure and start timer
   TIMER_SOFTWARE_init_system(); 
