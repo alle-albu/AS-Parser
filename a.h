@@ -1,8 +1,6 @@
 #ifndef A_H
 #define A_H
 
-// #include<stdint.h>
-
 #define AT_COMMAND_MAX_LINES 100
 #define AT_COMMAND_MAX_LINE_SIZE 128
 

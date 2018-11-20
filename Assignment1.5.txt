@@ -1,0 +1,132 @@
+DT ASSIGNMENT 1.5
+
+ UART_3 interface of the microcontroller needs to be configured with
+the following parameters: 
+  - a BAUD rate of 115200 bps, 
+  - 1 STOP bit, 8 bits per character,
+  - no parity and buffered mode enabled. 
+  
+The main function, that needs to be studied for
+accomplishing the configuration of UART_3, is -> DRV_UART_Configure. <-
+
+- For autobaud: an -> AT<CR><LF> <- sequence need to be sent to the modem prior of any other
+communication. It is advisable to send this sequence several times with a temporization
+of 1 second to insure the modem performs the AUTOBAUD. Sending 3 of this sequence
+may suffice. 
+.....
+const char at_command_simple="AT\r\n"
+...
+int main(void)
+{
+ ...
+ DRV_UART_Write(UART_3, at_command_simple, strlen(at_command_simple);
+ TIMER_SOFTWARE_Wait(1000);
+ ...
+}
+
+
+
+- Actual communication: Only after sending these sequences we can begin ”talking” to the GSM modem. As
+stated above, considering a TOP-DOWN design method the first level, in our case, could
+be the infinite loop performing the signal request and print once per second on the debug
+terminal.
+.....
+AT_COMMAND_DATA data_structure;
+const char at_command_simple="AT\r\n"
+const char at_command_csq = "AT+CSQ\r\n"
+timer_software_handler_t my_timer_handler;
+...
+int main(void)
+{
+ ...
+ uint32_t rssi_value_asu;
+ uint32_t rssi_value_dbmw;
+ ...
+ while (1)
+ {
+ if (TIMER_SOFTWARE_interrupt_pending(my_timer_handler))
+ {
+ ExecuteCommand(at_command_csq);
+ if (CommandResponseValid())
+ {
+ rssi_value_asu = ExtractData(&data_structure);
+ rssi_value_dbmw = ConvertAsuToDbmw(rssi_value_asu);
+ printf(...);
+ }
+ TIMER_SOFTWARE_clear_interrupt(my_timer_handler);
+ }
+ }
+ ...
+} 
+
+
+- ExecuteCommand function:  This function has as main roles to send the command given as parameters and
+to wait for a correct response. 
+void ExecuteCommand(const char *command)
+{
+ SendCommand(command);
+ GetCommandResponse(command);
+} 
+
+
+- SendCommand function: The SendCommand function has practically one important role which is the actual
+command string send over the UART line. The only observation here is that, in order to
+insure a clean buffer environment when initiating a new command, it would be best to
+first flush the buffers of the serial interfaces. 
+void SendCommand(const char *command)
+{
+ DRV_UART_FlushRX(UART_3);
+ DRV_UART_FlushTX(UART_3);
+ DRV_UART_Write(UART_3, command, strlen(command));
+} 
+
+
+- GetCommandResponse function:  Its main role is to wait for a valid response from the
+GSM modem in a given period of time. A timeout mechanism using a software timer
+needs to be implemented here mainly because we need to consider that the GSM modem
+is not a reliable communication partner thus it may crash. In such a situation we need to
+insure that our software running on the microcontroller detects this situation and does not
+get into a blocking state. Giving the fact that a software timer will be used, a prior
+configuration before our main infinite loop needs to be taken into consideration. Also, the
+software timer handler needs either to be declared globally or sent to the
+GetCommandResponse function as parameter in order to have access to it.
+ Furthermore, it is very important to mention that the GetCommandResponse function
+will be the one responsible in calling our previously developed library for parsing and
+extracting data from the GSM modem. 
+...
+timer_software_handler_t my_handler;
+...
+void GetCommandResponse()
+{
+ uint8_t ch;
+ BOOLEAN ready = FALSE;
+ TIMER_SOFTWARE_reset_timer(my_handler);
+ TIMER_SOFTWARE_start_timer(my_handler);
+ while ((!TIMER_SOFTWARE_interrupt_pending(my_handler)) && (ready == FALSE))
+ {
+ while (DRV_UART_BytesAvailable(UART_3) > 0)
+ {
+ DRV_UART_ReadByte(UART_3, &ch);
+ if (at_command_parser(ch) != STATE_MACHINE_NOT_READY)
+ {
+ ready = TRUE;
+ }
+ }
+ }
+} 
+
+
+- State diagram: https://cv.upt.ro/pluginfile.php/112069/mod_resource/content/3/Indrumator.pdf 
+pg. 38
+
+- Actual ASSIGNMENT: Integrate the AT command parser library developed and tested in
+the previous laboratory work into the basic Keil project provided, having the explanations
+in this laboratory work as a starting point. It is mandatory that the AT command parser
+library should not be copy-pasted into the main.c file but added as separated files (a .c and
+.h) in the main folder of the Keil project. The outcome of the program on the
+microcontroller should print the RSSI value received via the information return by the
+AT+CSQ command. Search the AT command manual for the syntax and how the result
+is presented. The RSSI value should be printed in both ASU units and dBmW units. The
+transformation from ASU units (as AT+CSQ returns) to dBmW can be made using the
+formula [13]:
+݀   dBmW = 2 * ASU - 113

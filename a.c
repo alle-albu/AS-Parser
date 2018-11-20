@@ -3,6 +3,10 @@
 #include <string.h>
 #include "a.h"
 
+// Contributors:
+// - ALEXANDRA Albu
+// - LEONARD Filip
+
 void print_data(AT_COMMAND_DATA data){
     for(uint8_t i=0; i<=data.line_count; i++) {
         for(uint8_t j=0; j<AT_COMMAND_MAX_LINE_SIZE; j++) if(data.data[i][j]>=32) printf("%c",data.data[i][j]);
