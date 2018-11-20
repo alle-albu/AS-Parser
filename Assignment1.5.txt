@@ -130,3 +130,4 @@ is presented. The RSSI value should be printed in both ASU units and dBmW units.
 transformation from ASU units (as AT+CSQ returns) to dBmW can be made using the
 formula [13]:
 ݀   dBmW = 2 * ASU - 113
+( dBmW + 113 ) / 2 = ASU
