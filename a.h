@@ -19,7 +19,7 @@ typedef enum
  STATE_MACHINE_SYNTAX_ERROR
 }STATE_MACHINE_RETURN_VALUE;
 
-STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character); 
+STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character);
 
 void print_data(AT_COMMAND_DATA data);
 
