@@ -19,10 +19,13 @@ typedef enum
  STATE_MACHINE_SYNTAX_ERROR
 }STATE_MACHINE_RETURN_VALUE;
 
-STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character);
+
+extern AT_COMMAND_DATA commandData;
+
+STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character, uint8_t special_flag); 
 
 void print_data(AT_COMMAND_DATA data);
 
-void reset_automaton(uint32_t state, AT_COMMAND_DATA data);
+void reset_automaton(uint32_t *state, AT_COMMAND_DATA data);
 
 #endif
