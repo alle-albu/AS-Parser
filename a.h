@@ -21,6 +21,12 @@ typedef enum
 
 
 extern AT_COMMAND_DATA commandData;
+extern uint8_t imeiData[AT_COMMAND_MAX_LINE_SIZE];
+extern uint8_t registrationStateData[AT_COMMAND_MAX_LINE_SIZE];
+extern uint8_t operatorData[AT_COMMAND_MAX_LINE_SIZE];
+extern uint8_t manufacturerData[AT_COMMAND_MAX_LINE_SIZE];
+extern uint8_t softwareData[AT_COMMAND_MAX_LINE_SIZE];
+
 
 STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character, uint8_t special_flag); 
 

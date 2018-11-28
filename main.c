@@ -16,11 +16,101 @@
 #include "a.h"
 
 AT_COMMAND_DATA commandData;
+
+uint8_t imeiData[AT_COMMAND_MAX_LINE_SIZE];
+uint8_t registrationStateData[AT_COMMAND_MAX_LINE_SIZE];
+uint8_t operatorData[AT_COMMAND_MAX_LINE_SIZE];
+uint8_t manufacturerData[AT_COMMAND_MAX_LINE_SIZE];
+uint8_t softwareData[AT_COMMAND_MAX_LINE_SIZE];
+
 STATE_MACHINE_RETURN_VALUE finalState = STATE_MACHINE_NOT_READY;
 
 const char*  at_command_simple="AT\r\n";
 const char*  at_command_csq = "AT+CSQ\r\n";
+const char*  at_command_creg = "AT+CREG\r\n";
+const char*  at_command_cops = "AT+COPS\r\n";
+const char*  at_command_gsn = "AT+GSN\r\n";
+const char*  at_command_gmi = "AT+GMI\r\n";
+const char*  at_command_gmr = "AT+GMR\r\n";
 timer_software_handler_t my_timer_handler;
+
+void CREG_network_registration_state(){
+    char i[1];
+    i[0] = commandData.data[0][9];
+    //9 sau 10 depending on the space after ,
+    uint32_t index = atoi(i);
+    switch(index) {
+        case 0: {
+            printf("Modem is not registered in the network and is not searching for a network ");
+            break;}
+        case 1: {
+            printf("Modem is registered to home network");
+            break;}
+        case 2: {
+            printf("Modem is not registered but it is currently searching for a network");
+            break;}
+        case 3: {
+            printf("Modem registration into the network was denied ");
+            break;}
+        case 4: {
+            printf("Unknown modem registration state");
+        break;}
+        case 5: {
+            printf("Modem is registered to roaming network ");
+        break;}
+    }
+}
+void COPS_network_operator_name(){
+    uint8_t i,j,k;
+    k=0;
+    for(i=0; i<=commandData.line_count; i++) {
+        j=0;
+        while(commandData.data[i][j]!=34) j++;
+        for(j++; j<AT_COMMAND_MAX_LINE_SIZE && commandData.data[i][j]!=34; j++) {
+            operatorData[k++] = commandData.data[i][j];
+        }
+    }
+    printf("operator name is: ");
+    for(i=0;i<k;i++){
+       printf("%c",operatorData[i]);
+    }
+}
+
+void GSN_imei(){
+    uint8_t j,i;
+    for(j=0; commandData.data[0][j]>=32; j++) {
+       imeiData[j] = commandData.data[0][j];
+    }
+    printf("imei is: ");
+    for(i=0;i<j;i++){
+       printf("%c",imeiData[i]);
+    }
+}
+
+void GMI_manufacturer(){
+    uint8_t j,i;
+    for(j=0; commandData.data[0][j]>=32; j++) {
+        manufacturerData[j] = commandData.data[0][j];
+    }
+    printf("manufacturer name is: ");
+    for(i=0;i<j;i++){
+        printf("%c",manufacturerData[i]);
+    }
+}
+
+void GMR_software_version() {
+    uint8_t i,j;
+    j=0;
+    i=0;
+    while(commandData.data[0][j]!=58) j++;
+    for(j=j+2; j<AT_COMMAND_MAX_LINE_SIZE && commandData.data[0][j]>=33; j++) {
+        softwareData[i++] = commandData.data[0][j];
+    }
+    printf("software version is: ");
+    for(j=0;j<i;j++){
+        printf("%c",softwareData[j]);
+    }
+}
 
 void SendCommand(const char *command)
 {
@@ -47,7 +137,7 @@ void GetCommandResponse()
     {
       DRV_UART_ReadByte(UART_3, &ch);
 			
-      if ((finalState=at_command_parse(ch)) != STATE_MACHINE_NOT_READY)
+      if ((finalState=at_command_parse(ch,1)) != STATE_MACHINE_NOT_READY)
       {
         ready = true;
       }
@@ -72,7 +162,6 @@ uint32_t ExtractAsuu(){
 }
 
 bool CommandResponseValid(){
-  // @TODO: implement this
 	if(finalState!=0 && finalState!=3){
 		return true;
 	}

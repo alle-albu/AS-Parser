@@ -4,7 +4,7 @@
 #include <string.h>
 #include "a.h"
 
-AT_COMMAND_DATA commandData;
+//AT_COMMAND_DATA commandData;
 
 // Contributors:
 // - ALEXANDRA Albu
@@ -16,88 +16,13 @@ AT_COMMAND_DATA commandData;
 // x Modem Manufacturer (AT+GMI) -> <manufacturer_identity> 
 // x Modem Software Version (AT+GMR) -> Revision: <revision>
 
-void CREG_network_registration_state(){
-    char i[1];
-    i[0] = commandData.data[0][9];
-    //9 sau 10 depending on the space after ,
-    uint32_t index = atoi(i);
-    switch(index) {
-        case 0: {
-            printf("Modem is not registered in the network and is not searching for a network ");
-            break;}
-        case 1: {
-            printf("Modem is registered to home network");
-            break;}
-        case 2: {
-            printf("Modem is not registered but it is currently searching for a network");
-            break;}
-        case 3: {
-            printf("Modem registration into the network was denied ");
-            break;}
-        case 4: {
-            printf("Unknown modem registration state");
-        break;}
-        case 5: {
-            printf("Modem is registered to roaming network ");
-        break;}
-    }
-}
-void COPS_network_operator_name(){
-    uint8_t i,j;
-    for(i=0; i<=commandData.line_count; i++) {
-        j=0;
-        while(commandData.data[i][j]!=34) j++;
-        for(j++; j<AT_COMMAND_MAX_LINE_SIZE && commandData.data[i][j]!=34; j++) printf("%c",commandData.data[i][j]);
-        printf("\n");
-    }
-}
-
-void GSN_imei(){
-    uint8_t j,i;
-    char imei[AT_COMMAND_MAX_LINE_SIZE];
-    for(j=0; commandData.data[0][j]>=32; j++) {
-        imei[j] = commandData.data[0][j];
-    }
-    printf("imei is: ");
-    for(i=0;i<j;i++){
-        printf("%c",imei[i]);
-    }
-}
-
-void GMI_manufacturer(){
-    uint8_t j,i;
-    char manufacturer[AT_COMMAND_MAX_LINE_SIZE];
-    for(j=0; commandData.data[0][j]>=32; j++) {
-        manufacturer[j] = commandData.data[0][j];
-    }
-    printf("manufacturer name is: ");
-    for(i=0;i<j;i++){
-        printf("%c",manufacturer[i]);
-    }
-}
-
-void GMR_software_version() {
-    uint8_t i,j;
-    char soft_version[AT_COMMAND_MAX_LINE_SIZE];
-    j=0;
-    i=0;
-    while(commandData.data[0][j]!=58) j++;
-    for(j=j+2; j<AT_COMMAND_MAX_LINE_SIZE && commandData.data[0][j]>=33; j++) {
-        soft_version[i++] = commandData.data[0][j];
-    }
-    printf("software version is: ");
-    for(j=0;j<i;j++){
-        printf("%c",soft_version[j]);
-    }
-}
-
-void get_info_data() {
-    COPS_network_operator_name();
-    CREG_network_registration_state();
-    GSN_imei();
-    GMI_manufacturer();
-    GMR_software_version();
-}
+// void get_info_data() {
+//     COPS_network_operator_name();
+//     CREG_network_registration_state();
+//     GSN_imei();
+//     GMI_manufacturer();
+//     GMR_software_version();
+// }
 
 void print_data(AT_COMMAND_DATA data){
 	uint8_t i,j;
@@ -422,45 +347,4 @@ STATE_MACHINE_RETURN_VALUE at_command_parse(uint8_t current_character, uint8_t s
  }
 
  return STATE_MACHINE_NOT_READY;
-}
-
-
-void print_final_state(uint32_t result){
-  printf("\n final state is %s",result==0?"STATE_MACHINE_NOT_READY":
-                            result==1?"STATE_MACHINE_READY_OK":
-                            result==2?"STATE_MACHINE_READY_WITH_ERROR":
-                            "STATE_MACHINE_SYNTAX_ERROR");
-}
-
-int main(int argc, char* argv[])
-{
-  uint32_t result;
-
-  if(argc==1){
-    printf("Test file name missing.");
-    return -1;
-  } 
-
-  FILE *fp = fopen(argv[1],"rb");
-  if(fp == NULL){
-    printf("Error in opening file");
-    return -2;
-  } 
-
-do {
-  uint8_t c = fgetc(fp);
-  if(feof(fp)) break;
-  //printf(" %c\n",c);
-  result = at_command_parse(c,1);
-  if(result == 1 || result == 2 || result== 3) break;
-} while(1);
-  
-  fclose(fp);
-
-  if(result == 0) {
-    printf("Either transmission was never started or it never ended.");
-  }
-  print_final_state(result);
-
-  return 0;
 }
