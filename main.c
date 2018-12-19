@@ -36,6 +36,27 @@ const char*  at_command_gmr = "AT+GMR\r\n";
 timer_software_handler_t my_timer_handler;
 uint8_t registeredFlag = 0;
 
+// for LCD printing
+LCD_PIXEL txtColor;
+LCD_PIXEL bkgColor;
+LCD_PIXEL yellowColor;
+		txtColor.red = 0;
+		txtColor.green = 0;
+		txtColor.blue = 255;
+       bkgColor.red = 255;
+		bkgColor.green = 0;
+		bkgColor.blue = 0;
+	yellowColor.red = 255;
+		yellowColor.green = 255;
+		yellowColor.blue = 0;
+
+// for assignment 1.8 
+// i = current index of sms in SMSArray
+// n = nr of elements in SMSArray
+const uint8_t* const SMSArray[] = { "foo", "bar", "aaa" };
+uint8_t i = 0;
+size_t n = sizeof(arr) / sizeof(uint8_t*);
+	
 
 void CREG_network_registration_state(){
     char i[1];
@@ -218,32 +239,54 @@ void drawBtn(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,char * txt, LCD_
 	DRV_LCD_Puts(txt,y1+(y2-y1)/2,x1+(x2-x1)/2,txtColor,bkgColor,false);
 }
 
+void goToNextEl(){
+    if(i+1 == n) i = 0;
+    else i = i+1;
+}
+
+void goToPrevEl(){
+    if(i==0) i = n-1;
+    else i = i-1;
+}
+
+void deleteEl(){
+    uint8_t c;
+     for (c = i ; c < n - 1; c++)
+    	SMSArray[c] = SMSArray[c+1];
+    n = n-1;
+    while(i>=n) i--; 
+}
+
 void processTouch(uint8_t x,uint8_t y){
+    const uint8_t* staticSMS = "this is a randomly generated sms";
+	
 	//@TODO: complete this
 	if(x<100&&x>20 && y>120&&y<150) prev;
 	..
+		
+		
+		// for prev
+		goToPrevEl();
+		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
+		// for next
+		goToNextEl();
+		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
+		// for send static SMS
+		DRV_LCD_Puts((char *)staticSMS,20,0,txtColor,bkgColor,true);
+		// for delete SMS ; I assumed position of SMS to be deleted in SMSArray is i
+		deleteEl();
+		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
 }
 
 void printLCD(){
-	LCD_PIXEL txtColor;
-	LCD_PIXEL bkgColor;
-	LCD_PIXEL yellowColor;
-		txtColor.red = 0;
-		txtColor.green = 0;
-		txtColor.blue = 255;
-    bkgColor.red = 255;
-		bkgColor.green = 0;
-		bkgColor.blue = 0;
-	yellowColor.red = 255;
-		yellowColor.green = 255;
-		yellowColor.blue = 0;
 	
 	DRV_LCD_ClrScr();
 	DRV_LCD_Puts((char *)registrationStateData,20,0,txtColor,bkgColor,true);
 	DRV_LCD_Puts((char *)operatorData,20,30,txtColor,bkgColor,true);
 	DRV_LCD_Puts((char *)csqResp,20,60,txtColor,bkgColor,true);
 	
-	//SMS buttons
+	//SMS buttons 
+	// @TODO: delete txtColor, bkgColor params because they are now global
 	drawBtn(120,20,150,100,"prev",txtColor,bkgColor);
 	drawBtn(120,120,150,200,"next",txtColor,bkgColor);
 	drawBtn(120,220,150,300,"del",txtColor,bkgColor);
