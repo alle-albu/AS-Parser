@@ -33,6 +33,7 @@ const char*  at_command_cops = "AT+COPS?\r\n";
 const char*  at_command_gsn = "AT+GSN\r\n";
 const char*  at_command_gmi = "AT+GMI\r\n";
 const char*  at_command_gmr = "AT+GMR\r\n";
+
 timer_software_handler_t my_timer_handler;
 uint8_t registeredFlag = 0;
 
@@ -40,22 +41,15 @@ uint8_t registeredFlag = 0;
 LCD_PIXEL txtColor;
 LCD_PIXEL bkgColor;
 LCD_PIXEL yellowColor;
-		txtColor.red = 0;
-		txtColor.green = 0;
-		txtColor.blue = 255;
-       bkgColor.red = 255;
-		bkgColor.green = 0;
-		bkgColor.blue = 0;
-	yellowColor.red = 255;
-		yellowColor.green = 255;
-		yellowColor.blue = 0;
 
+uint8_t X, Y;
+uint8_t apasat;
 // for assignment 1.8 
 // i = current index of sms in SMSArray
 // n = nr of elements in SMSArray
-const uint8_t* const SMSArray[] = { "foo", "bar", "aaa" };
+uint8_t* SMSArray[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 uint8_t i = 0;
-size_t n = sizeof(arr) / sizeof(uint8_t*);
+size_t n = sizeof(SMSArray) / sizeof(uint8_t*);
 	
 
 void CREG_network_registration_state(){
@@ -151,8 +145,7 @@ void GMR_software_version() {
 		printf("\n");
 }
 
-void SendCommand(const char *command)
-{
+void SendCommand(const char *command){
  DRV_UART_FlushRX(UART_3);
  DRV_UART_FlushTX(UART_3);
  DRV_UART_Write(UART_3, (uint8_t *)command, strlen(command));
@@ -162,8 +155,7 @@ void SendCommand(const char *command)
 timer_software_handler_t my_handler;
 // replaced the above with the global one
 
-void GetCommandResponse()
-{
+void GetCommandResponse(){
   // parse and extract data
   uint8_t ch;
 	
@@ -186,8 +178,7 @@ void GetCommandResponse()
   }
 } 
 
-void ExecuteCommand(const char *command)
-{
+void ExecuteCommand(const char *command){
 	SendCommand(command);
   GetCommandResponse();
 } 
@@ -226,17 +217,13 @@ void CSQ() {
 	sprintf((char *)csqResp, "asu: %d, dbmw: %d", rssi_value_asu, rssi_value_dbmw);
 }
 
-void drawBtn(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,char * txt, LCD_PIXEL txtColor, LCD_PIXEL bkgColor){
+void drawBtn(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,char * txt, LCD_PIXEL textColor, LCD_PIXEL bckgColor, int red, int green, int blue){
 	uint32_t i;
 	uint32_t j;
 	for(i=x1;i<=x2;i++)
 		for(j=y1;j<=y2;j++)
-			DRV_LCD_PutPixel(i,j,0,255,0);
-	
-	bkgColor.red = 0;
-	bkgColor.green = 255;
-	
-	DRV_LCD_Puts(txt,y1+(y2-y1)/2,x1+(x2-x1)/2,txtColor,bkgColor,false);
+			DRV_LCD_PutPixel(i,j,red,green,blue);
+	DRV_LCD_Puts(txt,y1+(y2-y1)/2,x1+(x2-x1)/2,textColor,bckgColor,true);
 }
 
 void goToNextEl(){
@@ -251,55 +238,53 @@ void goToPrevEl(){
 
 void deleteEl(){
     uint8_t c;
-     for (c = i ; c < n - 1; c++)
+     for (c = i ; c < n - 1; c++) 
     	SMSArray[c] = SMSArray[c+1];
     n = n-1;
     while(i>=n) i--; 
 }
 
-void processTouch(uint8_t x,uint8_t y){
-    const uint8_t* staticSMS = "this is a randomly generated sms";
+void processTouch(){
+  const uint8_t* staticSMS = "this is a randomly generated sms";
 	
-	//@TODO: complete this
-	if(x<100&&x>20 && y>120&&y<150) prev;
-	..
-		
-		
-		// for prev
+	if(X<120&&X>0 && Y>190&&Y<272)
 		goToPrevEl();
-		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
+	DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
 		// for next
+	if(X<240&&X>120 && Y>190&&Y<272)
 		goToNextEl();
-		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
+		DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
 		// for send static SMS
-		DRV_LCD_Puts((char *)staticSMS,20,0,txtColor,bkgColor,true);
+		//DRV_LCD_Puts((char *)staticSMS,20,0,txtColor,bkgColor,true);
 		// for delete SMS ; I assumed position of SMS to be deleted in SMSArray is i
+	if(X<360&&X>240 && Y>190&&Y<272)
 		deleteEl();
-		DRV_LCD_Puts((char *)SMSAray[i],20,0,txtColor,bkgColor,true);
+		DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
 }
 
 void printLCD(){
 	
 	DRV_LCD_ClrScr();
-	DRV_LCD_Puts((char *)registrationStateData,20,0,txtColor,bkgColor,true);
-	DRV_LCD_Puts((char *)operatorData,20,30,txtColor,bkgColor,true);
-	DRV_LCD_Puts((char *)csqResp,20,60,txtColor,bkgColor,true);
+	DRV_LCD_Puts((char *)registrationStateData,20,0,txtColor,bkgColor,false);
+	DRV_LCD_Puts((char *)operatorData,20,15,txtColor,bkgColor,false);
+	DRV_LCD_Puts((char *)csqResp,20,30,txtColor,bkgColor,false);
 	
-	//SMS buttons 
-	// @TODO: delete txtColor, bkgColor params because they are now global
-	drawBtn(120,20,150,100,"prev",txtColor,bkgColor);
-	drawBtn(120,120,150,200,"next",txtColor,bkgColor);
-	drawBtn(120,220,150,300,"del",txtColor,bkgColor);
-	drawBtn(120,320,150,400,"send",txtColor,bkgColor);
+	drawBtn(190,0,272,120,"prev",txtColor,bkgColor, 255, 0, 0);
+	drawBtn(190,120,272,240,"next",txtColor,yellowColor, 0, 255, 255);
+	drawBtn(190,240,272,360,"del",txtColor,bkgColor, 255, 255, 0);
+	drawBtn(190,360,272,482,"send",txtColor,yellowColor, 0, 100, 255);
 	
-	//SMS preview
-	drawBtn(170,20,250,400,"SMS preview",txtColor,yellowColor);
+	
+	drawBtn(60,5,160,477,"",txtColor,yellowColor, 0, 200, 244);
 }
 
 void MyTouchScreenCallBack(TouchResult* touchData){
-printf("touched X=%3d Y=%3d\n", touchData->X, touchData->Y); 
-	TIMER_SOFTWARE_Wait(1000);	
-	processTouch(touchData->X,touchData->Y);
+	printf("touched X=%3d Y=%3d\n", touchData->X, touchData->Y); 
+	TIMER_SOFTWARE_Wait(400);	
+	/*processTouch(touchData->X,touchData->Y);*/
+	apasat = 1;
+	X = touchData->X;
+	Y = touchData->Y;
 }
 
 void BoardInit()
@@ -312,26 +297,21 @@ void BoardInit()
 	DRV_LCD_ClrScr();
 	DRV_LCD_PowerOn();	
 	
-	//config touchscreen init & callback
 	 DRV_TOUCHSCREEN_Init(); 
-   DRV_TOUCHSCREEN_SetTouchCallback(MyTouchScreenCallBack); 
+   DRV_TOUCHSCREEN_SetTouchCallback(MyTouchScreenCallBack);
+	
 
 	printf ("Hello\n");
-TIMER_SOFTWARE_Wait(1000);	
+TIMER_SOFTWARE_Wait(200);	
 }
 
 int main(void)
 {
 
 	uint32_t i;
-  //uint32_t rssi_value_asu;
-  //uint32_t rssi_value_dbmw;
-
+	
 // board init
   BoardInit();
-
-	//DRV_LCD_TestFillColor(255,0,0);
-	//DRV_LCD_Puts("test string",100,100,txtColor,bkgColor,true);
 	
 // configure UART_3
   DRV_UART_Configure(UART_3, UART_CHARACTER_LENGTH_8, 115200, UART_PARITY_NO_PARITY, 1, TRUE, 3);
@@ -340,10 +320,26 @@ int main(void)
 // init, configure and start timer
   my_timer_handler = TIMER_SOFTWARE_request_timer(); 
 	my_handler = TIMER_SOFTWARE_request_timer(); 
+	
+	txtColor.red = 0;
+	txtColor.green = 0;
+	txtColor.blue = 255;
+
+	bkgColor.red = 255;
+	bkgColor.green = 0;
+	bkgColor.blue = 0;
+
+	yellowColor.red = 255;
+	yellowColor.green = 255;
+	yellowColor.blue = 0;
+	
+	TIMER_SOFTWARE_Wait(1000);
+	printLCD();
+	
   if (my_timer_handler < 0) 
   {
     printf("Timer could not be init.\n");
-		TIMER_SOFTWARE_Wait(1000);
+		TIMER_SOFTWARE_Wait(200);
   } 
   TIMER_SOFTWARE_configure_timer(my_timer_handler, MODE_1, 5000, true);
 	TIMER_SOFTWARE_configure_timer(my_handler, MODE_1, 30000, true);
@@ -352,21 +348,20 @@ int main(void)
 // establish connection to UART3 by sending AT command 3 times
   for(i=0;i<3;i++){
     DRV_UART_Write(UART_3, (uint8_t *)at_command_simple, strlen(at_command_simple));
-    TIMER_SOFTWARE_Wait(1000);
+    TIMER_SOFTWARE_Wait(200);
   }
 	
 // connection established by now
 // 1 time per second execute command and validate the response
 	 
 	TIMER_SOFTWARE_start_timer(my_timer_handler);
-  while (1)
-  {
+  while (1){
     if (TIMER_SOFTWARE_interrupt_pending(my_timer_handler))
     {
       
 			
 			ExecuteCommand(at_command_csq);
-			TIMER_SOFTWARE_Wait(1000);
+			TIMER_SOFTWARE_Wait(200);
       if (CommandResponseValid())
       {
 				CSQ();
@@ -375,7 +370,7 @@ int main(void)
 			memset(&commandData, 0, sizeof (commandData));
 			
 			ExecuteCommand(at_command_creg);
-			TIMER_SOFTWARE_Wait(1000);
+			TIMER_SOFTWARE_Wait(200);
       if (CommandResponseValid())
       {
 				CREG_network_registration_state();
@@ -384,7 +379,7 @@ int main(void)
 			memset(&commandData, 0, sizeof (commandData));
 			
 			ExecuteCommand(at_command_gsn);
-			TIMER_SOFTWARE_Wait(1000);
+			TIMER_SOFTWARE_Wait(200);
       if (CommandResponseValid())
       {
 				GSN_imei();
@@ -402,7 +397,7 @@ int main(void)
 			memset(&commandData, 0, sizeof (commandData));
 			
 			ExecuteCommand(at_command_gmr);
-			TIMER_SOFTWARE_Wait(1000);
+			TIMER_SOFTWARE_Wait(200);
       if (CommandResponseValid())
       {
 				GMR_software_version();
@@ -413,7 +408,7 @@ int main(void)
 			 
 			
 			ExecuteCommand(at_command_cops);
-			TIMER_SOFTWARE_Wait(1000);
+			TIMER_SOFTWARE_Wait(200);
       if (CommandResponseValid())
       {
 				COPS_network_operator_name();
@@ -421,10 +416,17 @@ int main(void)
 			
 			memset(&commandData, 0, sizeof (commandData));
 			
-			 printLCD();
+			//printLCD();
 			
       TIMER_SOFTWARE_clear_interrupt(my_timer_handler);
     }
-			DRV_TOUCHSCREEN_Process();
+			
+		if(apasat == 1)
+		{
+			apasat = 0;
+			processTouch();
+		}
+		
+		DRV_TOUCHSCREEN_Process();
   }
 }
