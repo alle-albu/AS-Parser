@@ -38,16 +38,28 @@ timer_software_handler_t my_timer_handler;
 uint8_t registeredFlag = 0;
 
 // for LCD printing
-LCD_PIXEL txtColor;
-LCD_PIXEL bkgColor;
-LCD_PIXEL yellowColor;
+LCD_PIXEL blueColor;
+LCD_PIXEL redColor;
+LCD_PIXEL oliveColor;
+LCD_PIXEL greenColor;
+LCD_PIXEL cyanColor;
+LCD_PIXEL magentaColor;
+LCD_PIXEL blackColor;
+
+const char* sendSMS = "SMS sent!";
+
+void fillColor(LCD_PIXEL *color, int red, int green, int blue) {
+	color->red = red;
+	color->green = green; 
+	color->blue = blue;
+}
 
 uint8_t X, Y;
 uint8_t apasat;
 // for assignment 1.8 
 // i = current index of sms in SMSArray
 // n = nr of elements in SMSArray
-uint8_t* SMSArray[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+uint8_t* SMSArray[] = { "Monday   ", "Tuesday  ", "Wednesday", "Thursday ", "Friday   "};
 uint8_t i = 0;
 size_t n = sizeof(SMSArray) / sizeof(uint8_t*);
 	
@@ -209,7 +221,7 @@ void CSQ() {
 	rssi_value_asu = ExtractAsuu();
 	rssi_value_dbmw = ConvertAsuToDbmw(rssi_value_asu);
 	
-	printf("ASU value: %d; dBmW value: %d \n",rssi_value_asu,rssi_value_dbmw);
+	printf("ASU value: %d; dBmW value: %d \n", rssi_value_asu, rssi_value_dbmw);
 	//strcpy((char *)csqResp,strcat((char *)rssi_value_asu,(char *)rssi_value_dbmw));
 	
 	
@@ -217,13 +229,15 @@ void CSQ() {
 	sprintf((char *)csqResp, "asu: %d, dbmw: %d", rssi_value_asu, rssi_value_dbmw);
 }
 
-void drawBtn(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,char * txt, LCD_PIXEL textColor, LCD_PIXEL bckgColor, int red, int green, int blue){
+void drawBtn(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,char * txt, LCD_PIXEL textColor, LCD_PIXEL textBckgColor, LCD_PIXEL fillColor){
 	uint32_t i;
 	uint32_t j;
+	
 	for(i=x1;i<=x2;i++)
 		for(j=y1;j<=y2;j++)
-			DRV_LCD_PutPixel(i,j,red,green,blue);
-	DRV_LCD_Puts(txt,y1+(y2-y1)/2,x1+(x2-x1)/2,textColor,bckgColor,true);
+			DRV_LCD_PutPixel(i,j, fillColor.red, fillColor.green, fillColor.blue);
+	
+	DRV_LCD_Puts(txt,y1+(y2-y1)/2,x1+(x2-x1)/2,textColor,textBckgColor,true);
 }
 
 void goToNextEl(){
@@ -245,50 +259,54 @@ void deleteEl(){
 }
 
 void processTouch(){
-  const uint8_t* staticSMS = "this is a randomly generated sms";
 	
-	if(X<120&&X>0 && Y>190&&Y<272)
+	if(X<120&&X>0 && Y>190&&Y<272) {
 		goToPrevEl();
-	DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
-		// for next
-	if(X<240&&X>120 && Y>190&&Y<272)
+		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+	}
+	
+	if(X<240&&X>120 && Y>190&&Y<272){
 		goToNextEl();
-		DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
-		// for send static SMS
-		//DRV_LCD_Puts((char *)staticSMS,20,0,txtColor,bkgColor,true);
-		// for delete SMS ; I assumed position of SMS to be deleted in SMSArray is i
-	if(X<360&&X>240 && Y>190&&Y<272)
+		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+	}
+	
+	if(X<360&&X>240 && Y>190&&Y<272) {
 		deleteEl();
-		DRV_LCD_Puts((char *)SMSArray[i],200,100,txtColor,bkgColor,true);
+		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+	}
+	
+	if(X<480&&X>360 && Y>190&&Y<272) {
+		//DRV_LCD_Puts((char*)sendSMS,200,100,blackColor,magentaColor,true);
+		drawBtn(60,5,160,477, (char*)sendSMS, blackColor, magentaColor, magentaColor);
+	}
 }
 
 void printLCD(){
 	
 	DRV_LCD_ClrScr();
-	DRV_LCD_Puts((char *)registrationStateData,20,0,txtColor,bkgColor,false);
-	DRV_LCD_Puts((char *)operatorData,20,15,txtColor,bkgColor,false);
-	DRV_LCD_Puts((char *)csqResp,20,30,txtColor,bkgColor,false);
+	DRV_LCD_Puts((char *)registrationStateData,20,0,blueColor,redColor,false);
+	DRV_LCD_Puts((char *)operatorData,20,15,blueColor,redColor,false);
+	DRV_LCD_Puts((char *)csqResp,20,30,blueColor,redColor,false);
 	
-	drawBtn(190,0,272,120,"prev",txtColor,bkgColor, 255, 0, 0);
-	drawBtn(190,120,272,240,"next",txtColor,yellowColor, 0, 255, 255);
-	drawBtn(190,240,272,360,"del",txtColor,bkgColor, 255, 255, 0);
-	drawBtn(190,360,272,482,"send",txtColor,yellowColor, 0, 100, 255);
+	drawBtn(190,0,272,120,"prev",blueColor,redColor, redColor);
+	drawBtn(190,120,272,240,"next",blueColor,oliveColor, oliveColor);
+	drawBtn(190,240,272,360,"del",magentaColor,cyanColor, cyanColor);
+	drawBtn(190,360,272,482,"send",blueColor,magentaColor, magentaColor);
 	
 	
-	drawBtn(60,5,160,477,"",txtColor,yellowColor, 0, 200, 244);
+	drawBtn(60,5,160,477, "", blueColor, magentaColor, magentaColor);
 }
 
 void MyTouchScreenCallBack(TouchResult* touchData){
-	printf("touched X=%3d Y=%3d\n", touchData->X, touchData->Y); 
-	TIMER_SOFTWARE_Wait(400);	
+	//printf("touched X=%3d Y=%3d\n", touchData->X, touchData->Y); 
+	TIMER_SOFTWARE_Wait(200);	
 	/*processTouch(touchData->X,touchData->Y);*/
 	apasat = 1;
 	X = touchData->X;
 	Y = touchData->Y;
 }
 
-void BoardInit()
-{
+void BoardInit(){
 	DRV_SDRAM_Init();
 	TIMER_SOFTWARE_init_system();
 
@@ -296,17 +314,16 @@ void BoardInit()
 	DRV_LCD_Init();
 	DRV_LCD_ClrScr();
 	DRV_LCD_PowerOn();	
-	
-	 DRV_TOUCHSCREEN_Init(); 
-   DRV_TOUCHSCREEN_SetTouchCallback(MyTouchScreenCallBack);
-	
+
+	DRV_TOUCHSCREEN_Init(); 
+	DRV_TOUCHSCREEN_SetTouchCallback(MyTouchScreenCallBack);
+
 
 	printf ("Hello\n");
-TIMER_SOFTWARE_Wait(200);	
+	TIMER_SOFTWARE_Wait(200);	
 }
 
-int main(void)
-{
+int main(void){
 
 	uint32_t i;
 	
@@ -321,17 +338,13 @@ int main(void)
   my_timer_handler = TIMER_SOFTWARE_request_timer(); 
 	my_handler = TIMER_SOFTWARE_request_timer(); 
 	
-	txtColor.red = 0;
-	txtColor.green = 0;
-	txtColor.blue = 255;
-
-	bkgColor.red = 255;
-	bkgColor.green = 0;
-	bkgColor.blue = 0;
-
-	yellowColor.red = 255;
-	yellowColor.green = 255;
-	yellowColor.blue = 0;
+	fillColor(&blueColor, 0, 0, 255);
+	fillColor(&redColor, 255, 0, 0);
+	fillColor(&greenColor, 0, 255, 0);
+	fillColor(&oliveColor, 128, 128, 0);
+	fillColor(&cyanColor, 0, 255, 255);
+	fillColor(&magentaColor, 255, 0, 255);
+	fillColor(&blackColor, 0, 0, 0);
 	
 	TIMER_SOFTWARE_Wait(1000);
 	printLCD();
@@ -416,7 +429,6 @@ int main(void)
 			
 			memset(&commandData, 0, sizeof (commandData));
 			
-			//printLCD();
 			
       TIMER_SOFTWARE_clear_interrupt(my_timer_handler);
     }
@@ -428,5 +440,5 @@ int main(void)
 		}
 		
 		DRV_TOUCHSCREEN_Process();
-  }
+	}
 }
