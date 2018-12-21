@@ -255,35 +255,46 @@ void deleteEl(){
      for (c = i ; c < n - 1; c++) 
     	SMSArray[c] = SMSArray[c+1];
     n = n-1;
-    while(i>=n) i--; 
+    //while(i>=n) i--; 
+	i=0;
 }
 
 void processTouch(){
-	
-	if(X<120&&X>0 && Y>190&&Y<272) {
+	printf ("x=%d  y=%d\n",X,Y);
+	TIMER_SOFTWARE_Wait(200);
+	if((X<120&&X>40) && (Y>190&&Y<272)) {
 		goToPrevEl();
 		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+		printf("prev");
+		TIMER_SOFTWARE_Wait(200);
 	}
 	
-	if(X<240&&X>120 && Y>190&&Y<272){
+	if(X<240&&X>160 && Y>190&&Y<272){
 		goToNextEl();
 		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+		printf("next");
+		TIMER_SOFTWARE_Wait(200);
 	}
 	
-	if(X<360&&X>240 && Y>190&&Y<272) {
+	if(X<40&&X>20 && Y>0&&Y<250) {
 		deleteEl();
 		DRV_LCD_Puts((char *)SMSArray[i],200,100,blackColor,magentaColor,true);
+		printf("del");
+		TIMER_SOFTWARE_Wait(200);
 	}
 	
-	if(X<480&&X>360 && Y>190&&Y<272) {
-		//DRV_LCD_Puts((char*)sendSMS,200,100,blackColor,magentaColor,true);
-		drawBtn(60,5,160,477, (char*)sendSMS, blackColor, magentaColor, magentaColor);
+	if(X<160&&X>140 && Y>190&&Y<272) {
+	
+		DRV_LCD_Puts((char*)sendSMS,200,100,blackColor,magentaColor,true);
+		//drawBtn(60,5,160,477, (char*)sendSMS, blackColor, magentaColor, magentaColor);
+		printf("send");
+		TIMER_SOFTWARE_Wait(200);
 	}
 }
 
 void printLCD(){
 	
-	DRV_LCD_ClrScr();
+	//DRV_LCD_ClrScr();
 	DRV_LCD_Puts((char *)registrationStateData,20,0,blueColor,redColor,false);
 	DRV_LCD_Puts((char *)operatorData,20,15,blueColor,redColor,false);
 	DRV_LCD_Puts((char *)csqResp,20,30,blueColor,redColor,false);
@@ -294,7 +305,7 @@ void printLCD(){
 	drawBtn(190,360,272,482,"send",blueColor,magentaColor, magentaColor);
 	
 	
-	drawBtn(60,5,160,477, "", blueColor, magentaColor, magentaColor);
+	//drawBtn(60,5,160,477, "", blueColor, magentaColor, magentaColor);
 }
 
 void MyTouchScreenCallBack(TouchResult* touchData){
@@ -320,7 +331,8 @@ void BoardInit(){
 
 
 	printf ("Hello\n");
-	TIMER_SOFTWARE_Wait(200);	
+	TIMER_SOFTWARE_Wait(200);
+drawBtn(60,5,160,477, "", blueColor, magentaColor, magentaColor);	
 }
 
 int main(void){
@@ -347,7 +359,7 @@ int main(void){
 	fillColor(&blackColor, 0, 0, 0);
 	
 	TIMER_SOFTWARE_Wait(1000);
-	printLCD();
+	//printLCD();
 	
   if (my_timer_handler < 0) 
   {
@@ -429,7 +441,7 @@ int main(void){
 			
 			memset(&commandData, 0, sizeof (commandData));
 			
-			
+			printLCD();
       TIMER_SOFTWARE_clear_interrupt(my_timer_handler);
     }
 			
